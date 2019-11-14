@@ -10,9 +10,17 @@ interface DarkPlayerProps {
   location: any;
 }
 
+export interface IVideo {
+  num: number;
+  title: string;
+  id: string;
+  duration: string;
+  video: string;
+}
+
 const DarkPlayer = (props: any) => {
   const videos = {
-    playlistId: "wbn_rdx",
+    playlistId: "My Songs",
     playlist: [
       {
         num: 1,
@@ -45,20 +53,21 @@ const DarkPlayer = (props: any) => {
     ]
   };
 
+  const storage = localStorage.getItem(`${videos.playlistId}`);
+  const savedState = storage ? JSON.parse(storage) : null;
   const [state, setState] = useState({
-    videos: videos.playlist,
-    activeVideo: videos.playlist[0],
-    nightMode: true,
-    playlistId: videos.playlistId,
+    videos: savedState ? savedState.videos : videos.playlist,
+    activeVideo: savedState ? savedState.activeVideo : videos.playlist[0],
+    nightMode: savedState ? savedState.nightMode : true,
+    playlistId: savedState ? savedState.playlistId : videos.playlistId,
     autoplay: false
   });
 
   useEffect(() => {
     const videoId = props.match.params.activeVideo;
-    console.log("videoid", videoId);
     if (videoId !== undefined) {
       const newActiveVideo = state.videos.findIndex(
-        video => video.id === videoId
+        (video: IVideo) => video.id === videoId
       );
       setState(prev => ({
         ...prev,
@@ -79,13 +88,44 @@ const DarkPlayer = (props: any) => {
     state.videos
   ]);
 
-  const nightModeCallback = () => {};
+  useEffect(() => {
+    localStorage.setItem(`${state.playlistId}`, JSON.stringify({ ...state }));
+  }, [state]);
 
-  const endCallback = () => {};
+  const nightModeCallback = () => {
+    setState(prev => ({
+      ...prev,
+      nightMode: !prev.nightMode
+    }));
+  };
 
-  const progressCallback = () => {};
+  const endCallback = () => {
+    const videoId = props.match.params.activeVideo;
+    const currentVideoIndex = state.videos.findIndex(
+      (video: IVideo) => video.id === videoId
+    );
+    const nextVideo =
+      currentVideoIndex === state.videos.length - 1 ? 0 : currentVideoIndex + 1;
 
-  console.log([state, props]);
+    props.history.push({
+      pathname: `${state.videos[nextVideo].id}`,
+      autoplay: true
+    });
+  };
+
+  const progressCallback = (e: any) => {
+    if (e.playedSeconds > 10 && e.playedSeconds < 11) {
+      setState(prevState => ({
+        ...prevState,
+        videos: prevState.videos.map((video: IVideo) => {
+          return video.id === prevState.activeVideo.id
+            ? { ...video, played: true }
+            : video;
+        })
+      }));
+    }
+  };
+
   return (
     <ThemeProvider theme={state.nightMode ? theme : themeLight}>
       {state.videos !== null ? (
