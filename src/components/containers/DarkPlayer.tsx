@@ -1,8 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Video from "../Video";
 import Playlist from "../containers/Playlist";
 import { ThemeProvider } from "styled-components";
 import StyledDarkPlayer from "../styles/StyledDarkPlayer";
+
+interface DarkPlayerProps {
+  match: any;
+  history: any;
+  location: any;
+}
 
 const DarkPlayer = (props: any) => {
   const videos = {
@@ -47,12 +53,39 @@ const DarkPlayer = (props: any) => {
     autoplay: false
   });
 
+  useEffect(() => {
+    const videoId = props.match.params.activeVideo;
+    console.log("videoid", videoId);
+    if (videoId !== undefined) {
+      const newActiveVideo = state.videos.findIndex(
+        video => video.id === videoId
+      );
+      setState(prev => ({
+        ...prev,
+        activeVideo: prev.videos[newActiveVideo],
+        autoplay: props.location.autoplay
+      }));
+    } else {
+      props.history.push({
+        pathname: `/${state.activeVideo.id}`,
+        autoplay: false
+      });
+    }
+  }, [
+    props.history,
+    props.location.autoplay,
+    props.match.params.activeVideo,
+    state.activeVideo.id,
+    state.videos
+  ]);
+
   const nightModeCallback = () => {};
 
   const endCallback = () => {};
 
   const progressCallback = () => {};
 
+  console.log([state, props]);
   return (
     <ThemeProvider theme={state.nightMode ? theme : themeLight}>
       {state.videos !== null ? (
