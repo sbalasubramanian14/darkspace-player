@@ -2,9 +2,21 @@ import * as React from "react";
 import PlaylistItem from "../PlaylistItem";
 import styled from "styled-components";
 
-const PlaylistItems = (props: any) => (
+interface PlaylistItemsProps {
+  videos: any;
+  active: any;
+}
+
+const PlaylistItems = (props: PlaylistItemsProps) => (
   <StyledPlaylistitems>
-    <PlaylistItem />
+    {props.videos.map((video: any) => (
+      <PlaylistItem
+        key={video.id}
+        video={video}
+        active={video.id === props.active.id ? true : false}
+        played={video.played}
+      />
+    ))}
   </StyledPlaylistitems>
 );
 

@@ -6,15 +6,18 @@ const isDev = require("electron-is-dev");
 let mainWindow;
 function createWindow() {
   mainWindow = new BrowserWindow({
+    width: 700,
+    height: 600,
     show: false,
+    alwaysOnTop: true,
+    autoHideMenuBar: true,
     icon: __dirname + "/favicon.ico",
     webPreferences: {
       nodeIntegration: true,
       webviewTag: true
     }
   });
-  mainWindow.setMenuBarVisibility(false);
-  mainWindow.maximize();
+  //mainWindow.maximize();
   mainWindow.loadURL(
     isDev
       ? "http://localhost:3000"

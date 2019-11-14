@@ -1,7 +1,12 @@
 import * as React from "react";
 import styled from "styled-components";
 
-const PlaylistHeader = (props: any) => (
+interface PlaylistHeaderProps {
+  active: any;
+  total: any;
+}
+
+const PlaylistHeader = (props: PlaylistHeaderProps) => (
   <StyledPlaylistHeader>
     <p>{props.active.title}</p>
     <StyledJourney>
